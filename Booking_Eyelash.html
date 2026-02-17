@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wulan Eyelash</title>
+
+<!-- FONT -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- LIB -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_pink.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Poppins',sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(-45deg,#ffe0f0,#ffd1e8,#f8f9fc,#ffe6f2);
+  background-size:400% 400%;
+  animation:bgMove 12s ease infinite;
+}
+@keyframes bgMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+.splash{
+  position:fixed;inset:0;
+  background:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+}
+.splash.hide{opacity:0;visibility:hidden}
+.logo{
+  font-size:32px;
+  font-weight:700;
+  letter-spacing:3px;
+  color:#d63384;
+  animation:glow 2s infinite alternate;
+}
+@keyframes glow{
+  from{text-shadow:0 0 5px #ff99cc}
+  to{text-shadow:0 0 20px #ff66b3}
+}
+
+.container{
+  width:100%;
+  max-width:520px;
+  background:#fff;
+  padding:28px;
+  border-radius:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.12);
+  opacity:0;
+  transform:translateY(20px);
+  transition:.8s;
+}
+.container.show{opacity:1;transform:none}
+
+h2{text-align:center;color:#d63384;margin-bottom:16px}
+
+.notice{
+  background:#fff3cd;
+  padding:12px;
+  border-radius:12px;
+  font-size:13px;
+  color:#856404;
+  margin-bottom:16px;
+}
+
+label{display:block;margin-top:14px;font-size:13px;color:#555}
+input,select{
+  width:100%;
+  margin-top:6px;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #eee;
+}
+input:focus,select:focus{
+  outline:none;
+  border-color:#ff66b3;
+  box-shadow:0 0 0 3px rgba(255,102,179,.15);
+}
+
+.checkbox{
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+  align-items:flex-start;
+}
+.checkbox input{width:16px;height:16px;margin-top:3px}
+.checkbox label{font-size:13px;color:#444;margin:0}
+
+/* ===== DP INFO ===== */
+.dp-box{
+  display:none;
+  background:#f8f9fc;
+  border:1px dashed #ff66b3;
+  padding:12px;
+  border-radius:12px;
+  margin-top:10px;
+  font-size:13px;
+}
+.dp-box small{color:#666}
+.dp-content{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin:6px 0;
+}
+.dp-number{
+  padding:10px;
+  background:#fff;
+  border-radius:10px;
+  text-align:center;
+  font-weight:600;
+}
+.dp-box button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#ff66b3;
+  color:#fff;
+  font-size:12px;
+  cursor:pointer;
+}
+
+
+button.submit{
+  width:100%;
+  margin-top:24px;
+  padding:15px;
+  border:none;
+  border-radius:20px;
+  background:linear-gradient(135deg,#ff66b3,#d63384);
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+
+.footer{
+  margin-top:40px;
+  text-align:center;
+  font-size:13px;
+  color:#555;
+}
+</style>
+</head>
+
+<body>
+
+<div class="splash" id="splash">
+  <div class="logo">WULAN EYELASH</div>
+</div>
+
+<div class="container" id="formContainer">
+<h2>Booking Form</h2>
+
+<div class="notice">
+⚠️ Booking <b>wajib DP</b>. Booking hanya diproses setelah melakukan pembayaran DP.DP tidak dapat dikembalikan jika pembatalan sepihak.
+</div>
+
+<form id="bookingForm">
+
+<label>Nama</label>
+<input id="nama" required>
+
+<label>Alamat</label>
+<input id="alamat" required>
+
+<label>Layanan</label>
+<select id="service" required>
+  <option value="">Pilih</option>
+  <option value="lokasi">Datang ke lokasi</option>
+  <option value="home">Home Service</option>
+</select>
+
+<label>Jenis Eyelash (boleh lebih dari satu)</label>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Natural eyelash - 50k">
+  <label>Natural eyelash - 50k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Double medium - 70k">
+  <label>Double medium - 70k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Double volume - 100k">
+  <label>Double volume - 100k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Russian Volume - 135k">
+  <label>Russian Volume - 135k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Cat eye Volume - 135k">
+  <label>Cat eye Volume - 135k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Wispy anime - 140k">
+  <label>Wispy anime - 140k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Wispy russian - 135k">
+  <label>Wispy russian - 135k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Korean lash - 135k">
+  <label>Korean lash - 135k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Mega volume - 155k">
+  <label>Mega volume - 155k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value='Bottom lash (bulumata bawah) "No request Ukuran" - 40k'>
+  <label>Bottom lash (bulumata bawah) "No request Ukuran" - 40k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Retouch - 35k s/d 100k">
+  <label>Retouch - 35k s/d 100k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Remove - 40k">
+  <label>Remove - 40k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Browbomber, tint - 120k">
+  <label>Browbomber, tint - 120k</label>
+</div>
+
+<div class="checkbox">
+  <input type="checkbox" name="jenis" value="Henna alis - 40k">
+  <label>Henna alis - 40k</label>
+</div>
+
+<label>Ukuran</label>
+<select id="ukuran" required></select>
+
+<label>Tanggal</label>
+<input id="tanggal" required>
+
+<label>Jam</label>
+<select id="jam" required><option value="">Pilih Jam</option></select>
+
+<label>Metode DP</label>
+<select id="metodeDP" required>
+  <option value="">Pilih</option>
+  <option value="mandiri">Mandiri</option>
+  <option value="dana">DANA</option>
+</select>
+
+    <div class="dp-box" id="dpMandiri">
+      <small>Rekening Mandiri</small>
+      <div class="dp-content">
+        <div class="dp-number" id="mandiriNo">1730019333393</div>
+        <button type="button" onclick="copyText('mandiriNo')">Salin Nomor</button>
+      </div>
+      <small>a.n Wulan Septiani</small>
+    </div>
+
+    <div class="dp-box" id="dpDana">
+      <small>DANA</small>
+      <div class="dp-content">
+        <div class="dp-number" id="danaNo">0895338129595</div>
+        <button type="button" onclick="copyText('danaNo')">Salin Nomor</button>
+      </div>
+      <small>a.n Ahmad Sobari</small>
+    </div>
+
+<div class="checkbox">
+  <input type="checkbox" required>
+  <label>Saya setuju dengan ketentuan DP</label>
+</div>
+
+<button class="submit">CONFIRM BOOKING</button>
+</form>
+
+<div class="footer">© <span id="year"></span> Wulan Eyelash ✨ Made with ❤️ by <strong>MZ_Arifin</strong></div>
+</div>
+
+<script>
+const admin="6285776965428";
+year.textContent=new Date().getFullYear();
+
+setTimeout(()=>{
+  splash.classList.add("hide");
+  formContainer.classList.add("show");
+},1500);
+
+for(let i=8;i<=15;i++) ukuran.innerHTML+=`<option>${i} mm</option>`;
+
+const jamLokasi = [
+  "08:00","09:00","10:00","11:00","12:00",
+  "13:00","14:00","15:00","16:00","17:00",
+  "18:00","19:00","20:00","21:00","22:00"
+];
+
+const jamHome = [
+  "15:00","16:00","17:00","18:00","19:00","20:00","21:00"
+];
+flatpickr("#tanggal",{
+  minDate:"today",
+  dateFormat:"Y-m-d",
+  onChange: buatJam
+});
+function buatJam(){
+  jam.innerHTML = '<option value="">Pilih Jam</option>';
+service.addEventListener("change", buatJam);
+if(!service.value || !tanggal.value) return;
+
+  const list = service.value === "home" ? jamHome : jamLokasi;
+
+  list.forEach(j => {
+    jam.innerHTML += `<option value="${j}">${j}</option>`;
+  });
+}
+metodeDP.onchange=()=>{
+  dpMandiri.style.display=metodeDP.value==="mandiri"?"block":"none";
+  dpDana.style.display=metodeDP.value==="dana"?"block":"none";
+};
+
+function getJenis(){
+  const cek=document.querySelectorAll('input[name="jenis"]:checked');
+  if(!cek.length) return null;
+  return [...cek].map(e=>e.value).join(", ");
+}
+
+bookingForm.onsubmit=e=>{
+  e.preventDefault();
+  const jenis=getJenis();
+  if(!jenis) return Swal.fire("Perhatian","Pilih minimal 1 jenis eyelash","warning");
+  
+if(!jam.value){
+  return Swal.fire("Perhatian","Silakan pilih jam","warning");
+}
+  const pesan=`✨ BOOKING WULAN EYELASH ✨
+Nama: ${nama.value}
+Alamat: ${alamat.value}
+Service: ${service.options[service.selectedIndex].text}
+Jenis Eyelash:
+${jenis}
+Ukuran: ${ukuran.value}
+Tanggal: ${tanggal.value}
+Jam: ${jam.value}
+DP: ${metodeDP.options[metodeDP.selectedIndex].text}`;
+
+  window.open(`https://wa.me/${admin}?text=${encodeURIComponent(pesan)}`);
+};
+</script>
+
+</body>
+</html>
