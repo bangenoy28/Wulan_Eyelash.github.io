@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>💎 Booking Eyelash List</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+:root{
+    --primary:#7b2cbf;
+    --success:#25D366;
+    --danger:#dc3545;
+    --warning:#ffc107;
+    --dark:#343a40;
+    --soft:#f8f9ff;
+}
+*{box-sizing:border-box}
+body{
+    font-family:'Segoe UI',sans-serif;
+    background:linear-gradient(135deg,#f8f0ff,#eef2ff);
+    margin:0;padding:20px;
+}
+header{
+    display:flex;flex-wrap:wrap;
+    justify-content:space-between;
+    align-items:center;gap:12px;
+}
+h2{margin:0;color:var(--primary);}
+.btn{
+    border:none;padding:10px 14px;
+    border-radius:12px;
+    cursor:pointer;font-weight:600;transition:.2s;
+}
+.btn:hover{transform:translateY(-2px)}
+.add{background:var(--primary);color:#fff;}
+.share{background:var(--success);color:#fff;}
+.filter{background:#fff;border:1px solid #ddd;}
+.edit{background:var(--warning);}
+.delete{background:var(--danger);color:#fff;}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 10px 25px rgba(0,0,0,.1);
+    background:#fff;
+}
+thead th{
+    background:var(--dark);
+    color:#fff;
+    padding:14px;
+    font-size:13px;
+    text-align:left;
+}
+tbody td{
+    padding:12px;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
+tr:hover{background:#faf7ff;}
+td.actions{white-space:nowrap;}
+.badge{
+    padding:5px 10px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:600;
+    display:inline-block;
+}
+.home{background:#ffe8cc}
+.spot{background:#d0ebff;}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.6);
+}
+.modal-box{
+    background:#fff;
+    max-width:600px;
+    margin:8% auto;
+    padding:25px;
+    border-radius:20px;
+}
+textarea{
+    width:100%;
+    height:200px;
+    padding:14px;
+    border-radius:12px;
+    border:1px solid #ccc;
+    resize:none;
+}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+    table,thead,tbody,tr,th,td{display:block;width:100%}
+    thead{display:none}
+    tbody tr{margin-bottom:15px;border-radius:15px;padding:10px;box-shadow:0 5px 15px rgba(0,0,0,.08);}
+    td{border:none;padding:6px 0;position:relative;}
+    td::before{content:attr(data-label);font-weight:600;display:block;font-size:12px;color:#555;}
+    td.actions{text-align:left;}
+}
+.footer{
+    margin-top:40px;
+    padding:15px 10px;
+    text-align:center;
+    font-size:13px;
+    color:#555;
+    background:rgba(255,255,255,.6);
+    border-radius:14px;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+.footer strong{
+    color:#7b2cbf;
+    font-weight:700;
+}
+</style>
+</head>
+<body>
+
+<header>
+<h2>💄 Booking Eyelash List</h2><br>
+<div>
+    <button class="btn filter" onclick="setFilter('all')">📋 Semua</button>
+    <button class="btn filter" onclick="setFilter('daily')">📅 Hari Ini</button>
+    <button class="btn filter" onclick="setFilter('weekly')">🗓️ Mingguan</button>
+    <button class="btn add" onclick="openModal()">➕ Input</button>
+    <button class="btn share" onclick="share()">📲 Share Semua</button>
+</div>
+</header>
+
+<!-- TABEL CONTAINER -->
+<div id="tables-container"></div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-box">
+<h3 id="modalTitle">📋 Paste Booking</h3>
+<textarea id="input" placeholder="Paste teks booking di sini..."></textarea><br><br>
+<button class="btn add" onclick="save()">💾 Simpan</button>
+<button class="btn filter" onclick="closeModal()">❌ Batal</button>
+</div>
+</div>
+
+<script>
+let data=[], filter="all", editIndex=null;
+
+// Load data dari localStorage
+if(localStorage.getItem("bookingData")){
+    data=JSON.parse(localStorage.getItem("bookingData"));
+}
+
+// MODAL
+function openModal(edit=false){
+    modal.style.display="block";
+    if(!edit){input.value=""; editIndex=null; modalTitle.innerText="📋 Paste Booking";}
+}
+function closeModal(){modal.style.display="none";}
+function parseTanggalIndonesia(strTanggal, jam){
+    // Contoh: "Senin, 18 September 2026"
+    const bulanMap = {
+        januari:0, februari:1, maret:2, april:3, mei:4, juni:5,
+        juli:6, agustus:7, september:8, oktober:9, november:10, desember:11
+    };
+
+    const clean = strTanggal.split(",").pop().trim(); 
+    const [tgl, bulanText, tahun] = clean.split(" ");
+    const [jamStr, menitStr] = jam.split(":");
+
+    return new Date(
+        parseInt(tahun),
+        bulanMap[bulanText.toLowerCase()],
+        parseInt(tgl),
+        parseInt(jamStr),
+        parseInt(menitStr)
+    );
+}
+// PARSE DATA
+function parse(block){
+    const g=l=>(block.match(new RegExp(l+":(.*)"))||["",""])[1].trim();
+    const t=g("Tanggal"), j=g("Jam");
+    return{
+        nama:g("Nama"),
+        alamat:g("Alamat"),
+        service:g("Service"),
+        jenis:g("Jenis"),
+        ukuran:g("Ukuran"),
+        tanggal:t,
+        jam:j,
+        dp:g("DP"),
+        datetime: parseTanggalIndonesia(t, j)
+    };
+}
+
+// SIMPAN
+function save(){
+    if(editIndex!==null){
+        data[editIndex]=parse(input.value);
+    }else{
+        input.value.trim().split(/\n\s*\n/).forEach(b=>data.push(parse(b)));
+    }
+    localStorage.setItem("bookingData",JSON.stringify(data));
+    closeModal();
+    render();
+}
+
+// FILTER
+function setFilter(f){filter=f;render();}
+
+// RENDER TABEL PER SERVICE
+function render(){
+    const container=document.getElementById("tables-container");
+    container.innerHTML="";
+    const now=new Date();
+
+    // FILTER + SORT
+    const filtered = data
+        .map((d,i)=>({...d,_index:i}))
+        .filter(d=>{
+            if(filter==="daily") return d.datetime.toDateString()===now.toDateString();
+            if(filter==="weekly"){
+                const diff=(d.datetime-now)/86400000;
+                return diff>=0 && diff<=7;
+            }
+            return true;
+        })
+        .sort((a,b)=>a.datetime-b.datetime);
+
+    // ===== GROUP PER TANGGAL =====
+    const byTanggal = {};
+    filtered.forEach(d=>{
+        if(!byTanggal[d.tanggal]) byTanggal[d.tanggal]=[];
+        byTanggal[d.tanggal].push(d);
+    });
+
+    let grandTotal = 0;
+
+    // LOOP TANGGAL
+    for(const tanggal in byTanggal){
+        const listTanggal = byTanggal[tanggal];
+        grandTotal += listTanggal.length;
+
+        // JUDUL TANGGAL + JUMLAH
+        container.innerHTML += `
+            <h3>📆 ${tanggal} (Jumlah: ${listTanggal.length})</h3>
+        `;
+
+        // ===== GROUP SERVICE DALAM TANGGAL =====
+        const services = {};
+        listTanggal.forEach(d=>{
+            if(!services[d.service]) services[d.service]=[];
+            services[d.service].push(d);
+        });
+
+        // LOOP SERVICE
+        for(const s in services){
+            const list = services[s];
+
+            container.innerHTML += `<h3>💄 ${s} (Jumlah: ${list.length})</h3>`;
+
+            let html=`<table>
+            <thead>
+                <tr>
+                    <th>No</th>
+                    <th>👩 Nama</th>
+                    <th>📍 Alamat</th>
+                    <th>📆 Tanggal</th>
+                    <th>⏰ Jam</th>
+                    <th>✨ Jenis + Ukuran</th>
+                    <th>💰 DP</th>
+                    <th>⚙️ Aksi</th>
+                </tr>
+            </thead>
+            <tbody>`;
+
+            list.forEach((d,i)=>{
+                html+=`<tr>
+                    <td data-label="No">${i+1}</td>
+                    <td data-label="Nama">👩 ${d.nama}</td>
+                    <td data-label="Alamat">📍 ${d.alamat}</td>
+                    <td data-label="Tanggal">📆 ${d.tanggal}</td>
+                    <td data-label="Jam">⏰ ${d.jam}</td>
+                    <td data-label="Jenis">✨ ${d.jenis} (${d.ukuran})</td>
+                    <td data-label="Dp">💰 ${d.dp}</td>
+                    <td class="actions" data-label="Aksi">
+                        <button class="btn edit" onclick="edit(${d._index})">✏️</button>
+                        <button class="btn delete" onclick="hapus(${d._index})">🗑️</button>
+                    </td>
+                </tr>`;
+            });
+
+            html+=`</tbody></table>`;
+            container.innerHTML+=html;
+        }
+    }
+
+    // TOTAL SEMUA
+    if(grandTotal>0){
+        container.innerHTML+=`<h2>✨ Total Semua Booking: ${grandTotal}</h2>`;
+    }
+}
+
+// EDIT
+function edit(i){
+    const d = data[i];
+    input.value=
+`Nama: ${d.nama}
+Alamat: ${d.alamat}
+Service: ${d.service}
+Jenis: ${d.jenis}
+Ukuran: ${d.ukuran}
+Tanggal: ${d.tanggal}
+Jam: ${d.jam}
+DP: ${d.dp}`;
+    editIndex=i;
+    modalTitle.innerText="✏️ Edit Booking";
+    openModal(true);
+}
+
+// HAPUS
+function hapus(i){
+    if(confirm("Yakin hapus booking ini?")){
+        data.splice(i,1);
+        localStorage.setItem("bookingData",JSON.stringify(data));
+        render();
+    }
+}
+
+// SHARE WA SEMUA
+function share(){
+    let t="📌 REKAP BOOKING EYELASH\n\n";
+    [...data].sort((a,b)=>a.datetime-b.datetime).forEach(d=>{
+        t+=
+`👩 Nama: ${d.nama}
+📍 Alamat: ${d.alamat}
+💄 Service: ${d.service}
+✨ Jenis: ${d.jenis} (${d.ukuran})
+📆 Tanggal: ${d.tanggal}
+⏰ Jam: ${d.jam}
+——————————
+`;
+    });
+    window.open("https://wa.me/?text="+encodeURIComponent(t));
+}
+
+// INITIAL RENDER
+render();
+</script>
+<footer class="footer">
+    <span>✨ Made with ❤️ by <strong>MZ_Arifin</strong></span>
+</footer>
+</body>
+</html>
